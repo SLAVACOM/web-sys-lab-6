@@ -17,9 +17,9 @@
 
 ```bash
 bundle install
-bin/rails db:migrate
-bin/rails test
-bin/rails server
+bundle exec rails db:migrate
+bundle exec rails test
+bundle exec rails server
 ```
 
 ## Что сделано
@@ -49,13 +49,13 @@ bin/rails server
 ## Тесты
 
 ```bash
-bin/rails test
+bundle exec rails test
 ```
 
 Только тесты моделей:
 
 ```bash
-bin/rails test:models
+bundle exec rails test:models
 ```
 
 ## Упражнения по консоли
@@ -64,7 +64,7 @@ bin/rails test:models
 скриптом в папке [exercises](exercises); запуск из папки `lab_6`:
 
 ```bash
-bin/rails runner exercises/6_1_3_creating_users.rb
+bundle exec rails runner exercises/6_1_3_creating_users.rb
 ```
 
 | Скрипт | Раздел | Тема |
@@ -98,3 +98,21 @@ development, как в книге, и его можно запускать по�
   добавляют и `has_secure_password`, и `validates :password` (листинг 6.43).
 - DB Browser for SQLite, GitHub, облачная IDE и Heroku не используются,
   ветки не создаются.
+
+
+
+## Запуск в Windows
+
+Откройте PowerShell в папке проекта. Файл bin/rails — Ruby-скрипт без
+расширения, поэтому Windows не запускает его напрямую. Используйте обёртку
+bin/rails.bat:
+
+    .\bin\rails.bat test
+    .\bin\rails.bat db:migrate
+    .\bin\rails.bat server
+
+Также можно вызывать Rails через Bundler:
+
+    bundle exec rails test
+    bundle exec rails db:migrate
+    bundle exec rails server
