@@ -25,12 +25,12 @@ sandbox do
   show "valid? с длинными name и email", long.valid?
   show "сообщения о длине", long.errors.full_messages
 
-  # 6.2.5: без downcase проверка уникальности зависела бы от регистра;
-  # с колбэком before_save адрес в базе всегда в нижнем регистре.
+  # 6.2.5: уникальность отклоняет адрес-дубликат независимо от регистра;
+  # before_save сохраняет нормализованный адрес в нижнем регистре.
   first = User.create(user_attrs(name: "Example User", email: "Mixed@Example.COM"))
   show "email в базе после create", first.reload.email
-  duplicate = User.new(user_attrs(name: "Other", email: "mixed@example.com"))
-  show "дубликат (нижний регистр) валиден", duplicate.valid?
+  duplicate = User.new(user_attrs(name: "Other", email: "MIXED@example.com"))
+  show "дубликат (другой регистр) валиден", duplicate.valid?
 end
 
 # 6.2.4: регулярное выражение на допустимых и недопустимых адресах

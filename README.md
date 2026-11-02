@@ -38,7 +38,7 @@ bundle exec rails server
 | Правило | Где |
 | --- | --- |
 | имя обязательно, не длиннее 50 символов | `validates :name` |
-| email обязателен, не длиннее 255, соответствует `VALID_EMAIL_REGEX`, уникален | `validates :email` |
+| email обязателен, не длиннее 255, соответствует `VALID_EMAIL_REGEX`, уникален без учёта регистра | `validates :email` |
 | email приводится к нижнему регистру перед сохранением | `before_save` |
 | пароль и подтверждение, хеш bcrypt, метод `authenticate` | `has_secure_password` |
 | пароль обязателен (не из пробелов), не короче 6 символов | `validates :password` |
