@@ -1,11 +1,11 @@
 # Ruby on Rails Tutorial sample application
 
-Лабораторная работа №4: Rails-flavored Ruby.
+Лабораторная работа №5: оформление layout.
 
 Это учебное приложение для книги
 [*Ruby on Rails Tutorial: Learn Web Development with Rails*](https://www.railstutorial.org/)
-Майкла Хартла ([Michael Hartl](https://www.michaelhartl.com/)), глава 4.
-Работа продолжает приложение из лабораторной №3.
+Майкла Хартла ([Michael Hartl](https://www.michaelhartl.com/)), глава 5.
+Работа продолжает приложение из лабораторной №4.
 
 ## Лицензия
 
@@ -17,10 +17,10 @@
 
 - Ruby 4.0.7
 - Rails 8.1.3.1
+- JavaScript-движок для ExecJS (нужен `autoprefixer-rails` при сборке стилей):
+  на macOS подходит встроенный JavaScriptCore, Node.js не обязателен
 
 ## Как начать
-
-Установить гемы, выполнить миграции, запустить тесты и сервер:
 
 ```bash
 bundle install
@@ -29,69 +29,72 @@ bin/rails test
 bin/rails server
 ```
 
-## Что изменилось в приложении
+## Что сделано
 
-Хелпер `full_title` в [app/helpers/application_helper.rb](app/helpers/application_helper.rb)
-возвращает базовый заголовок `Ruby on Rails Tutorial Sample App`, а если у страницы
-есть свой заголовок, то `<заголовок> | Ruby on Rails Tutorial Sample App`.
-Layout берёт заголовок из хелпера: `<title><%= full_title(yield(:title)) %></title>`.
+- **Bootstrap 3 и Sass.** Гемы `bootstrap-sass`, `sassc-rails`, `sprockets-rails`;
+  стили лежат в [app/assets/stylesheets/custom.scss](app/assets/stylesheets/custom.scss)
+  (вложенность и переменные Sass).
+- **Layout.** [app/views/layouts/application.html.erb](app/views/layouts/application.html.erb)
+  собран из partials: `_rails_default`, `_shim`, `_header`, `_footer`.
+- **Главная страница.** Jumbotron, кнопка регистрации и логотип Rails
+  (`app/assets/images/rails.svg`).
+- **Именованные маршруты.** `root_path`, `help_path`, `about_path`,
+  `contact_path`, `signup_path`; ссылки в шапке и футере используют их.
+- **Контроллер Users** с действием `new` и заглушкой страницы `/signup`.
+- **Тесты.** Контроллерные тесты, интеграционный тест ссылок layout и прямой тест
+  хелпера `full_title`.
 
-Поэтому главной странице собственный заголовок больше не нужен: из
-`static_pages/home.html.erb` убран `provide(:title, "Home")`, и у `/` теперь
-базовый заголовок. Тест главной страницы обновлён по циклу Red-Green.
+## Маршруты
 
-| Страница | Адрес | Заголовок |
-| --- | --- | --- |
-| Home | `/`, `/static_pages/home` | Ruby on Rails Tutorial Sample App |
-| Help | `/static_pages/help` | Help \| Ruby on Rails Tutorial Sample App |
-| About | `/static_pages/about` | About \| Ruby on Rails Tutorial Sample App |
-| Contact | `/static_pages/contact` | Contact \| Ruby on Rails Tutorial Sample App |
+| Страница | Адрес | Именованный маршрут | Заголовок |
+| --- | --- | --- | --- |
+| Home | `/` | `root_path` | Ruby on Rails Tutorial Sample App |
+| Help | `/help` | `help_path` | Help \| Ruby on Rails Tutorial Sample App |
+| About | `/about` | `about_path` | About \| Ruby on Rails Tutorial Sample App |
+| Contact | `/contact` | `contact_path` | Contact \| Ruby on Rails Tutorial Sample App |
+| Sign up | `/signup` | `signup_path` | Sign up \| Ruby on Rails Tutorial Sample App |
 
-## Упражнения по Ruby
+Ссылка Log in остаётся заглушкой `#`: маршрут появится в главе 8.
 
-В книге упражнения разделов 4.2-4.4 выполняются в консоли `rails console`.
-Здесь каждое оформлено скриптом в папке [exercises](exercises), чтобы результат
-можно было воспроизвести. Запуск, из папки `lab_4`:
+## Тесты
 
 ```bash
-ruby exercises/4_2_1_strings.rb
+bin/rails test
 ```
 
-| Скрипт | Раздел книги | Тема |
-| --- | --- | --- |
-| `4_2_1_strings.rb` | 4.2.1 | строки, интерполяция, одинарные и двойные кавычки |
-| `4_2_2_objects.rb` | 4.2.2 | объекты, `reverse`, `==`, тест палиндрома |
-| `4_2_3_methods.rb` | 4.2.3 | определение методов, `palindrome_tester` |
-| `4_3_1_arrays.rb` | 4.3.1 | массивы и диапазоны, `split`, `join` |
-| `4_3_2_blocks.rb` | 4.3.2 | блоки, `map`, `yeller`, перемешивание |
-| `4_3_3_hashes.rb` | 4.3.3 | хеши, символы, вложенные хеши, `merge` |
-| `4_4_1_constructors.rb` | 4.4.1 | литеральные и именованные конструкторы |
-| `4_4_2_inheritance.rb` | 4.4.2 | иерархия классов, класс `Word` |
-| `4_4_3_modifying_builtin.rb` | 4.4.3 | методы `palindrome?` и `shuffle` в `String` |
-| `4_4_4_controller_class.rb` | 4.4.4 | иерархия контроллера и модели (нужен `rails runner`) |
-| `4_4_5_user_class.rb` | 4.4.5 | класс `User` из `example_user.rb` |
-
-Скрипту `4_4_4_controller_class.rb` нужно окружение Rails:
+Только интеграционные:
 
 ```bash
-bin/rails runner exercises/4_4_4_controller_class.rb
+bin/rails test:integration
 ```
 
-Упражнение про `User.new` в книге относится к учебному приложению главы 2,
-поэтому для него скрипт запускается в `lab_2`:
+Автоматический запуск при изменении файлов (Guard):
 
 ```bash
-cd ../lab_2 && bin/rails runner ../lab_4/exercises/4_4_4_controller_class.rb
+bundle exec guard
 ```
 
 ## Отличия от учебника
 
-- В разделе 4.5 книга предлагает удалить `example_user.rb` из корня приложения.
-  Он перенесён в `exercises/` и оставлен, чтобы результат упражнений 4.4.5
-  был виден в репозитории. На работу приложения он не влияет: папка
-  `exercises` не подключается Rails.
-- В листинге 4.3 после `full_title(yield(:title))` стоит лишний пробел внутри
-  `<title>`, он не воспроизведён: тест ожидает точное совпадение заголовка.
-- Книга написана для Rails 7.0.4 и Ruby 3.1.2, здесь используются Rails 8.1.3.1
-  и Ruby 4.0.7; подробности стека описаны в README лабораторной №3.
-- GitHub, облачная IDE и Heroku не используются, ветки не создаются.
+- **Sprockets вместо Propshaft.** В лабораторных №3 и №4 приложение работало на
+  Propshaft (стандарт Rails 8), но Bootstrap 3 и `bootstrap-sass` из книги
+  требуют Sprockets и Sass-компилятор. Поэтому, как в листинге 5.5,
+  подключены `sprockets-rails` и `sassc-rails`; добавлены
+  `app/assets/config/manifest.js` и манифест `application.css` (листинг 5.19).
+  Гем `sassc` собирается из исходников на Ruby 4.0.7 без проблем.
+- **Bootstrap 3.4.1**, а не новее: так делает и книга, чтобы разметка
+  (`navbar-fixed-top`, `jumbotron`, `btn-lg`) совпадала с описанной.
+- **Страница Contact** уже была сделана в лабораторной №3, поэтому раздел 5.3.1
+  не потребовал нового кода (тест из листинга 5.21 уже был).
+- **Картинки** `rails.svg` и `kitten.jpg` скачаны с CDN книги
+  (`cdn.learnenough.com`) в `app/assets/images`. Котёнок оставлен
+  закомментированным на главной (`<%#= image_tag("kitten.jpg") %>`, листинг 5.10).
+- **Упражнения-эксперименты** (скрыть все картинки через CSS, маршрут `helf`,
+  подмена ссылки в футере, опечатка в базовом заголовке) выполнены и откачены,
+  как предписывает книга; в историю они не попали.
+- **Layout.** К листингу 5.1 оставлены три тега `<link rel="icon">` стандартного
+  layout Rails 8, чтобы браузер не запрашивал несуществующий favicon.
+- **Тест `should get root`** из лабораторной №3 удалён: в листинге 5.28 корень
+  проверяет тест `should get home` через `root_path`.
+- Книга написана для Rails 7.0.4 и Ruby 3.1.2, здесь Rails 8.1.3.1 и Ruby 4.0.7.
+  GitHub, облачная IDE и Heroku не используются, ветки не создаются.
