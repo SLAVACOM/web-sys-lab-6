@@ -1,24 +1,17 @@
 # Ruby on Rails Tutorial sample application
 
-Лабораторная работа №5: оформление layout.
+Лабораторная работа №6: модель пользователя.
 
 Это учебное приложение для книги
 [*Ruby on Rails Tutorial: Learn Web Development with Rails*](https://www.railstutorial.org/)
-Майкла Хартла ([Michael Hartl](https://www.michaelhartl.com/)), глава 5.
-Работа продолжает приложение из лабораторной №4.
-
-## Лицензия
-
-Весь исходный код [Ruby on Rails Tutorial](https://www.railstutorial.org/)
-доступен совместно по лицензиям MIT и Beerware. Подробности в
-[LICENSE.md](https://github.com/learnenough/rails_tutorial_sample_app_7th_ed/blob/main/LICENSE.md).
+Майкла Хартла ([Michael Hartl](https://www.michaelhartl.com/)), глава 6.
+Работа продолжает приложение из лабораторной №5.
 
 ## Зависимости
 
 - Ruby 4.0.7
 - Rails 8.1.3.1
-- JavaScript-движок для ExecJS (нужен `autoprefixer-rails` при сборке стилей):
-  на macOS подходит встроенный JavaScriptCore, Node.js не обязателен
+- SQLite (база `storage/development.sqlite3`, в git не попадает)
 
 ## Как начать
 
@@ -31,30 +24,27 @@ bin/rails server
 
 ## Что сделано
 
-- **Bootstrap 3 и Sass.** Гемы `bootstrap-sass`, `sassc-rails`, `sprockets-rails`;
-  стили лежат в [app/assets/stylesheets/custom.scss](app/assets/stylesheets/custom.scss)
-  (вложенность и переменные Sass).
-- **Layout.** [app/views/layouts/application.html.erb](app/views/layouts/application.html.erb)
-  собран из partials: `_rails_default`, `_shim`, `_header`, `_footer`.
-- **Главная страница.** Jumbotron, кнопка регистрации и логотип Rails
-  (`app/assets/images/rails.svg`).
-- **Именованные маршруты.** `root_path`, `help_path`, `about_path`,
-  `contact_path`, `signup_path`; ссылки в шапке и футере используют их.
-- **Контроллер Users** с действием `new` и заглушкой страницы `/signup`.
-- **Тесты.** Контроллерные тесты, интеграционный тест ссылок layout и прямой тест
-  хелпера `full_title`.
+Модель [User](app/models/user.rb) с атрибутами `name`, `email` и безопасным
+паролем.
 
-## Маршруты
+| Миграция | Что делает |
+| --- | --- |
+| `create_users` | таблица `users`: `name`, `email`, `created_at`, `updated_at` |
+| `add_index_to_users_email` | уникальный индекс по `email` (уникальность на уровне базы) |
+| `add_password_digest_to_users` | столбец `password_digest` для хеша bcrypt |
 
-| Страница | Адрес | Именованный маршрут | Заголовок |
-| --- | --- | --- | --- |
-| Home | `/` | `root_path` | Ruby on Rails Tutorial Sample App |
-| Help | `/help` | `help_path` | Help \| Ruby on Rails Tutorial Sample App |
-| About | `/about` | `about_path` | About \| Ruby on Rails Tutorial Sample App |
-| Contact | `/contact` | `contact_path` | Contact \| Ruby on Rails Tutorial Sample App |
-| Sign up | `/signup` | `signup_path` | Sign up \| Ruby on Rails Tutorial Sample App |
+Валидации и колбэки:
 
-Ссылка Log in остаётся заглушкой `#`: маршрут появится в главе 8.
+| Правило | Где |
+| --- | --- |
+| имя обязательно, не длиннее 50 символов | `validates :name` |
+| email обязателен, не длиннее 255, соответствует `VALID_EMAIL_REGEX`, уникален | `validates :email` |
+| email приводится к нижнему регистру перед сохранением | `before_save` |
+| пароль и подтверждение, хеш bcrypt, метод `authenticate` | `has_secure_password` |
+| пароль обязателен (не из пробелов), не короче 6 символов | `validates :password` |
+
+Каждое правило сделано по циклу Red-Green: сначала тест в
+[test/models/user_test.rb](test/models/user_test.rb), потом код модели.
 
 ## Тесты
 
@@ -62,39 +52,49 @@ bin/rails server
 bin/rails test
 ```
 
-Только интеграционные:
+Только тесты моделей:
 
 ```bash
-bin/rails test:integration
+bin/rails test:models
 ```
 
-Автоматический запуск при изменении файлов (Guard):
+## Упражнения по консоли
+
+В книге упражнения главы 6 выполняются в `rails console`. Здесь каждое оформлено
+скриптом в папке [exercises](exercises); запуск из папки `lab_6`:
 
 ```bash
-bundle exec guard
+bin/rails runner exercises/6_1_3_creating_users.rb
 ```
+
+| Скрипт | Раздел | Тема |
+| --- | --- | --- |
+| `6_1_2_model_file.rb` | 6.1.2 | иерархия `User < ApplicationRecord < ActiveRecord::Base` |
+| `6_1_3_creating_users.rb` | 6.1.3 | `new`, `valid?`, `save`, `create`, `destroy` |
+| `6_1_4_finding_users.rb` | 6.1.4 | `find`, `find_by`, `first`, `all` |
+| `6_1_5_updating_users.rb` | 6.1.5 | `save`, `reload`, `update`, `update_attribute` |
+| `6_2_validations.rb` | 6.2 | ошибки валидации, регулярное выражение для email |
+| `6_3_secure_password.rb` | 6.3.2, 6.3.3 | требования к паролю |
+| `6_3_4_create_authenticate.rb` | 6.3.4 | создание пользователя и `authenticate` |
+
+Скрипты работают как `rails console --sandbox`: изменения базы откатываются.
+Исключение - `6_3_4_create_authenticate.rb`, он сохраняет пользователя в базе
+development, как в книге, и его можно запускать повторно.
 
 ## Отличия от учебника
 
-- **Sprockets вместо Propshaft.** В лабораторных №3 и №4 приложение работало на
-  Propshaft (стандарт Rails 8), но Bootstrap 3 и `bootstrap-sass` из книги
-  требуют Sprockets и Sass-компилятор. Поэтому, как в листинге 5.5,
-  подключены `sprockets-rails` и `sassc-rails`; добавлены
-  `app/assets/config/manifest.js` и манифест `application.css` (листинг 5.19).
-  Гем `sassc` собирается из исходников на Ruby 4.0.7 без проблем.
-- **Bootstrap 3.4.1**, а не новее: так делает и книга, чтобы разметка
-  (`navbar-fixed-top`, `jumbotron`, `btn-lg`) совпадала с описанной.
-- **Страница Contact** уже была сделана в лабораторной №3, поэтому раздел 5.3.1
-  не потребовал нового кода (тест из листинга 5.21 уже был).
-- **Картинки** `rails.svg` и `kitten.jpg` скачаны с CDN книги
-  (`cdn.learnenough.com`) в `app/assets/images`. Котёнок оставлен
-  закомментированным на главной (`<%#= image_tag("kitten.jpg") %>`, листинг 5.10).
-- **Упражнения-эксперименты** (скрыть все картинки через CSS, маршрут `helf`,
-  подмена ссылки в футере, опечатка в базовом заголовке) выполнены и откачены,
-  как предписывает книга; в историю они не попали.
-- **Layout.** К листингу 5.1 оставлены три тега `<link rel="icon">` стандартного
-  layout Rails 8, чтобы браузер не запрашивал несуществующий favicon.
-- **Тест `should get root`** из лабораторной №3 удалён: в листинге 5.28 корень
-  проверяет тест `should get home` через `root_path`.
-- Книга написана для Rails 7.0.4 и Ruby 3.1.2, здесь Rails 8.1.3.1 и Ruby 4.0.7.
-  GitHub, облачная IDE и Heroku не используются, ветки не создаются.
+- **Версии.** Книга написана для Rails 7.0.4 и Ruby 3.1.2, здесь Rails 8.1.3.1 и
+  Ruby 4.0.7: миграции получают `ActiveRecord::Migration[8.1]`, а `bcrypt`
+  подтянулся версии 3.1.22 (`gem "bcrypt", "~> 3.1.7"`).
+- **Регулярное выражение.** Оставлен усиленный вариант из листинга 6.23
+  (запрещает `foo@bar..com`), он получен в упражнении 6.2.4.
+- **Колбэк.** Оставлен вариант `self.email = email.downcase` (листинг 6.32);
+  вариант с `email.downcase!` (листинг 6.35) проверен и откачен.
+- **Rubular** из браузера не использовался: регулярное выражение проверено
+  на тех же адресах скриптом `6_2_validations.rb`.
+- **Фикстуры** `test/fixtures/users.yml` очищены (листинг 6.31): иначе уникальный
+  индекс не позволяет загрузить две записи с одинаковым email.
+- **Двойное сообщение** `Password can't be blank` - не ошибка: presence-проверку
+  добавляют и `has_secure_password`, и `validates :password` (листинг 6.43).
+- DB Browser for SQLite, GitHub, облачная IDE и Heroku не используются,
+  ветки не создаются.
